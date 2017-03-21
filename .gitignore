@@ -39,3 +39,14 @@ eggs/
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
+
+# vs2015
+Backup/
+x64/
+.vs/
+Debug/
+Release/
+*.db
+UpgradeLog.htm
+*.filters
+*.user
