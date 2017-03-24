@@ -29,7 +29,31 @@
 
 
 
+#ifdef USE_BOOST_PYTHON
+
+#include <boost/python.hpp>
+#include <boost/python/numeric.hpp>
+#include <boost/python/tuple.hpp>
+#include <math.h>
+#include <cmath>
+
+namespace py = boost::python;
+
+#endif
+
 #include "PhenotypeBehavior.h"
+
+// visual studio 2015 update 3 버그땜에 발생하는 문제 해결용 코드.. 
+namespace boost
+{
+	template <>
+	NEAT::PhenotypeBehavior const volatile * get_pointer<class NEAT::PhenotypeBehavior const volatile >(
+		class NEAT::PhenotypeBehavior const volatile *c)
+	{
+		return c;
+	}
+}
+//
 
 namespace NEAT
 {

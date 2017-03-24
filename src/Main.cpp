@@ -10,6 +10,7 @@
   *
   */
 
+
 #include "Genome.h"
 #include "Population.h"
 #include "NeuralNetwork.h"
@@ -23,7 +24,7 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 using namespace NEAT;
 
-#define ENABLE_TESTING
+//#define ENABLE_TESTING
 #ifdef ENABLE_TESTING
 
 /*
