@@ -30,6 +30,9 @@
 // Description: Definition for the parameters class.
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <map>
+#include "Traits.h"
+
 #ifdef USE_BOOST_PYTHON
 
 #include <boost/python.hpp>
@@ -359,6 +362,14 @@ public:
 
     // Per how many evaluations to change the treshold
     unsigned int CompatTreshChangeInterval_Evaluations;
+    
+    /////////////////////////////
+    // Genome properties params
+    /////////////////////////////
+    
+    // When true, don't have a special bias neuron and treat all inputs equal
+    bool DontUseBiasNeuron;
+    bool AllowLoops;
 
 
     /////////////////////////////
@@ -405,6 +416,14 @@ public:
     bool GeometrySeed;
 
     /////////////////////////////////////
+    // Universal traits
+    /////////////////////////////////////
+    std::map< std::string, TraitParameters > NeuronTraits;
+    std::map< std::string, TraitParameters > LinkTraits;
+    double MutateNeuronTraitsProb;
+    double MutateLinkTraitsProb;
+
+    /////////////////////////////////////
     // Constructors
     /////////////////////////////////////
 
@@ -425,12 +444,182 @@ public:
     // Saves the parameters to an already opened file for writing
     void Save(FILE* a_fstream);
 
-
     // resets the parameters to built-in defaults
     void Reset();
     
 #ifdef USE_BOOST_PYTHON
-    
+
+    TraitParameters TraitParamsFromDict(py::dict trait_params)
+    {
+        // create the trait parameters
+        TraitParameters t;
+        t.m_ImportanceCoeff = py::extract<double>(trait_params["importance_coeff"]);
+        t.m_MutationProb = py::extract<double>(trait_params["mutation_prob"]);
+        t.type = py::extract<std::string>(trait_params["type"]);
+        if (trait_params.has_key("dep_key"))
+        {
+            t.dep_key = py::extract<std::string>(trait_params["dep_key"]);
+            // infer the dep_value type from the value
+            py::object o = trait_params["dep_value"];
+            std::string st = py::extract<std::string>(o.attr("__class__").attr("__name__"));
+            if (st == "int")
+            {
+                t.dep_value = py::extract<int>(trait_params["dep_value"]);
+            }
+            else
+            if (st == "float")
+            {
+                t.dep_value = py::extract<double>(trait_params["dep_value"]);
+            }
+            else
+            if (st == "str")
+            {
+                t.dep_value = py::extract<std::string>(trait_params["dep_value"]);
+            }
+            else
+            {
+                throw std::runtime_error("Unknown trait type");
+            }
+        }
+
+        if (t.type == "int")
+        {
+            IntTraitParameters itp;
+            py::dict details = py::extract<py::dict>(trait_params["details"]);
+            itp.min = py::extract<int>(details["min"]);
+            itp.max = py::extract<int>(details["max"]);
+            itp.mut_power = py::extract<int>(details["mut_power"]);
+            itp.mut_replace_prob = py::extract<double>(details["mut_replace_prob"]);
+            t.m_Details = itp;
+        }
+        else if (t.type == "float")
+        {
+            FloatTraitParameters itp;
+            py::dict details = py::extract<py::dict>(trait_params["details"]);
+            itp.min = py::extract<double>(details["min"]);
+            itp.max = py::extract<double>(details["max"]);
+            itp.mut_power = py::extract<double>(details["mut_power"]);
+            itp.mut_replace_prob = py::extract<double>(details["mut_replace_prob"]);
+            t.m_Details = itp;
+        }
+        else if (t.type == "str")
+        {
+            StringTraitParameters itp;
+            py::dict details = py::extract<py::dict>(trait_params["details"]);
+            py::list set = py::extract<py::list>(details["set"]);
+            py::list probs = py::extract<py::list>(details["probs"]);
+            for(int i=0; i<py::len(set); i++)
+            {
+                std::string s = py::extract<std::string>(set[i]);
+                itp.set.push_back(s);
+            }
+            for(int i=0; i<py::len(probs); i++)
+            {
+                double d = py::extract<double>(probs[i]);
+                itp.probs.push_back(d);
+            }
+            t.m_Details = itp;
+        }
+
+        return t;
+    }
+
+    void SetNeuronTraitParameters(std::string name, py::dict trait_params)
+    {
+        NeuronTraits[name] = TraitParamsFromDict(trait_params);
+    }
+
+    void SetLinkTraitParameters(std::string name, py::dict trait_params)
+    {
+        LinkTraits[name] = TraitParamsFromDict(trait_params);
+    }
+
+    py::list ListNeuronTraitParameters()
+    {
+        py::list l;
+        for(auto it=NeuronTraits.begin(); it!=NeuronTraits.end(); it++)
+        {
+            l.append(it->first);
+        }
+        return l;
+    }
+
+    py::list ListLinkTraitParameters()
+    {
+        py::list l;
+        for(auto it=LinkTraits.begin(); it!=LinkTraits.end(); it++)
+        {
+            l.append(it->first);
+        }
+        return l;
+    }
+
+    void ClearNeuronTraitParameters()
+    {
+        NeuronTraits.clear();
+    }
+
+    void ClearLinkTraitParameters()
+    {
+        LinkTraits.clear();
+    }
+
+    py::dict GetNeuronTraitParameters(std::string name)
+    {
+        if (NeuronTraits.count(name) == 0)
+        {
+            throw std::runtime_error("No such trait");
+        }
+
+        py::dict t;
+        t["importance_coeff"] = NeuronTraits[name].m_ImportanceCoeff;
+        t["mutation_prob"] = NeuronTraits[name].m_MutationProb;
+        py::dict dt;
+        if (NeuronTraits[name].type == "int")
+        {
+            t["type"] = "int";
+            dt["min"] = bs::get<IntTraitParameters>(NeuronTraits[name].m_Details).min;
+            dt["max"] = bs::get<IntTraitParameters>(NeuronTraits[name].m_Details).max;
+            dt["mut_power"] = bs::get<IntTraitParameters>(NeuronTraits[name].m_Details).mut_power;
+            dt["mut_replace_prob"] = bs::get<IntTraitParameters>(NeuronTraits[name].m_Details).mut_replace_prob;
+        }
+        if (NeuronTraits[name].type == "float")
+        {
+            t["type"] = "float";
+            dt["min"] = bs::get<FloatTraitParameters>(NeuronTraits[name].m_Details).min;
+            dt["max"] = bs::get<FloatTraitParameters>(NeuronTraits[name].m_Details).max;
+            dt["mut_power"] = bs::get<FloatTraitParameters>(NeuronTraits[name].m_Details).mut_power;
+            dt["mut_replace_prob"] = bs::get<FloatTraitParameters>(NeuronTraits[name].m_Details).mut_replace_prob;
+        }
+        if (NeuronTraits[name].type == "str")
+        {
+            t["type"] = "str";
+            py::list set;
+            py::list probs;
+            int ssize = bs::get<StringTraitParameters>(NeuronTraits[name].m_Details).set.size();
+            for(int i=0; i<ssize; i++)
+            {
+                set.append(bs::get<StringTraitParameters>(NeuronTraits[name].m_Details).set[i]);
+                probs.append(bs::get<StringTraitParameters>(NeuronTraits[name].m_Details).probs[i]);
+            }
+
+            dt["set"] = bs::get<FloatTraitParameters>(NeuronTraits[name].m_Details).min;
+            dt["probs"] = bs::get<FloatTraitParameters>(NeuronTraits[name].m_Details).max;
+        }
+
+        t["details"] = dt;
+
+        return t;
+    }
+
+    py::dict GetLinkTraitParameters(std::string name)
+    {
+        py::dict traits;
+        return traits;
+    }
+
+
+
     // Serialization
     friend class boost::serialization::access;
     template<class Archive>
@@ -516,10 +705,15 @@ public:
 
         ar & MutateNeuronTimeConstantsProb;
         ar & MutateNeuronBiasesProb;
+        ar & MutateNeuronTraitsProb;
+        ar & MutateLinkTraitsProb;
+
         ar & MinNeuronTimeConstant;
         ar & MaxNeuronTimeConstant;
         ar & MinNeuronBias;
         ar & MaxNeuronBias;
+
+
         ar & DisjointCoeff;
         ar & ExcessCoeff;
         ar & ActivationADiffCoeff;
@@ -533,6 +727,9 @@ public:
         ar & CompatTresholdModifier;
         ar & CompatTreshChangeInterval_Generations;
         ar & CompatTreshChangeInterval_Evaluations;
+        
+        ar & DontUseBiasNeuron;
+        ar & AllowLoops;
 
         ar & DivisionThreshold;
         ar & VarianceThreshold;

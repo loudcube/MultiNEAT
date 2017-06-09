@@ -14,6 +14,10 @@ if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
 endif()
 
+#include_directories(${PYTHON_INCLUDE_DIRS})
+
+#add_definitions(-DUSE_BOOST_PYTHON)
+
 set(SOURCE_FILES
     src/Assert.h
     src/Genes.h
@@ -39,7 +43,7 @@ set(SOURCE_FILES
     src/Substrate.cpp
     src/Substrate.h
     src/Utils.cpp
-    src/Utils.h)
+    src/Utils.h src/Traits.h src/Traits.cpp)
 
 add_executable(MultiNEAT ${SOURCE_FILES})
 target_link_libraries(MultiNEAT ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} pthread)

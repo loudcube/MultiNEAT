@@ -200,7 +200,6 @@ public:
         }
 
         return m_Species[idx_species].m_Individuals[idx_genome];
-
     }
 
 
@@ -236,10 +235,10 @@ public:
     // Real-Time methods
 
     // Estimates the estimated average fitness for all species
-    void EstimateAllAverages();
+    //void EstimateAllAverages();
 
     // Reproduce the population champ only
-    Genome ReproduceChamp();
+    //Genome ReproduceChamp();
 
     // Choose the parent species that will reproduce
     // This is a real-time version of fitness sharing

@@ -51,8 +51,8 @@ namespace NEAT
 class Connection
 {
 public:
-    unsigned short int m_source_neuron_idx;       // index of source neuron
-    unsigned short int m_target_neuron_idx;       // index of target neuron
+    int m_source_neuron_idx;       // index of source neuron
+    int m_target_neuron_idx;       // index of target neuron
     double m_weight;                               // weight of the connection
     double m_signal;                               // weight * input signal
 
@@ -174,7 +174,7 @@ public:
     {
         return m_neurons[a_idx];
     }
-    void SetInputOutputDimentions(const unsigned short a_i, const unsigned short a_o)
+    void SetInputOutputDimentions(const unsigned int a_i, const unsigned int a_o)
     {
         m_num_inputs = a_i;
         m_num_outputs = a_o;

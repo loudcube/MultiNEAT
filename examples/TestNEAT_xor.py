@@ -94,11 +94,16 @@ params.CrossoverRate = 0.75  # mutate only 0.25
 params.MultipointCrossoverRate = 0.4
 params.SurvivalRate = 0.2
 
+params.MutateNeuronTraitsProb = 0
+params.MutateLinkTraitsProb = 0
+
+params.AllowLoops = False
+
 def getbest(i):
     g = NEAT.Genome(0, 3, 0, 1, False, NEAT.ActivationFunction.UNSIGNED_SIGMOID,
                     NEAT.ActivationFunction.UNSIGNED_SIGMOID, 0, params)
     pop = NEAT.Population(g, params, True, 1.0, i)
-    pop.RNG.Seed(i)
+    pop.RNG.Seed(int(time.clock()*100))
 
     generations = 0
     for generation in range(1000):

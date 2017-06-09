@@ -131,6 +131,10 @@ params.ActivationFunction_SignedSine_Prob = 1.0
 params.ActivationFunction_UnsignedSine_Prob = 0.0
 params.ActivationFunction_Linear_Prob = 1.0
 
+params.MutateNeuronTraitsProb = 0
+params.MutateLinkTraitsProb = 0
+
+params.AllowLoops = False
 
 def getbest(i):
     g = NEAT.Genome(0,

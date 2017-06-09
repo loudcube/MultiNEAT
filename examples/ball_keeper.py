@@ -25,7 +25,7 @@ collision_type_floor = 3
 params = NEAT.Parameters()
 params.PopulationSize = 150
 params.DynamicCompatibility = True
-params.AllowClones = True
+params.AllowClones = False
 params.CompatTreshold = 5.0
 params.CompatTresholdModifier = 0.3
 params.YoungAgeTreshold = 15
@@ -63,6 +63,10 @@ params.Height = 1.
 params.Elitism = 0.1
 params.CrossoverRate = 0.5
 params.MutateWeightsSevereProb = 0.01
+
+params.MutateNeuronTraitsProb = 0
+params.MutateLinkTraitsProb = 0
+
 rng = NEAT.RNG()
 rng.TimeSeed()
 

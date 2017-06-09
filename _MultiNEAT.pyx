@@ -38,9 +38,9 @@ cdef class RNG:
     def RandFloat(self):
         return self.thisptr.RandFloat()
     def RandFloatClamped(self):
-        return self.thisptr.RandFloatClamped()
+        return self.thisptr.RandFloatSigned()
     def RandGaussClamped(self):
-        return self.thisptr.RandGaussClamped()
+        return self.thisptr.RandGaussSigned()
     def Roulette(self, a_probs):
         return self.thisptr.Roulette(a_probs)
 
@@ -395,7 +395,15 @@ cdef class Parameters:
     property MaxNeuronBias:
         def __get__(self): return self.thisptr.MaxNeuronBias
         def __set__(self, MaxNeuronBias): self.thisptr.MaxNeuronBias = MaxNeuronBias
-        
+
+    property DontUseBiasNeuron:
+        def __get__(self): return self.thisptr.DontUseBiasNeuron
+        def __set__(self, DontUseBiasNeuron): self.thisptr.DontUseBiasNeuron = DontUseBiasNeuron
+
+    property AllowLoops:
+        def __get__(self): return self.thisptr.AllowLoops
+        def __set__(self, AllowLoops): self.thisptr.AllowLoops = AllowLoops
+
     property DisjointCoeff:
         def __get__(self): return self.thisptr.DisjointCoeff
         def __set__(self, DisjointCoeff): self.thisptr.DisjointCoeff = DisjointCoeff

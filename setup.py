@@ -42,7 +42,7 @@ def getExtensions():
              '-Wall'
              ]
 
-    if 'win' in platform:
+    if 'win' in platform and platform != 'darwin':
         extra.append('/EHsc')
     else:
         extra.append('-w')
@@ -91,6 +91,6 @@ def getExtensions():
 
 
 setup(name='MultiNEAT',
-      version='0.3',
+      version='0.4',
       packages=['MultiNEAT'],
       ext_modules=getExtensions())
